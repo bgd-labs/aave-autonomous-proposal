@@ -5,8 +5,10 @@ import {AaveGovernanceV2, IGovernanceStrategy} from 'aave-address-book/AaveAddre
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 
 contract AutonomousProposal {
-  event ProposalCreated(uint256 proposalId);
-  event ProposalExecuted();
+  event ProposalCreated(uint256 proposalID);
+  event ProposalExecuted(uint256 indexed proposalID);
+
+  uint256 private proposalID;
 
   function getPropositionPower() external view returns (uint256) {
     IGovernanceStrategy strategy = IGovernanceStrategy(
@@ -31,7 +33,7 @@ contract AutonomousProposal {
     bool[] memory withDelegatecalls = new bool[](1);
     withDelegatecalls[0] = true;
 
-    uint256 proposalId = AaveGovernanceV2.GOV.create(
+    proposalID = AaveGovernanceV2.GOV.create(
       IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR),
       targets,
       values,
@@ -40,13 +42,11 @@ contract AutonomousProposal {
       withDelegatecalls,
       0
     );
-
-    emit ProposalCreated(proposalId);
-
-    return proposalId;
+    emit ProposalCreated(proposalID);
+    return proposalID;
   }
 
   function execute() public {
-    emit ProposalExecuted();
+    emit ProposalExecuted(proposalID);
   }
 }
