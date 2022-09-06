@@ -1,25 +1,14 @@
-# BGD forge template
+# Autonomous proposal
+Autonomous proposal is an example of a contract with 2 methods
+_create()_ and  _execute()_
+Create method can be called by anyone when enough people delegate proposition power to the contract. In that particular case, it’s 80k. Once enough proposition power is accumulated, anyone can call `create()` method, which will create the proposal referencing the same contract with `execute()` signature.
 
-Basic template with prettier and rest configuration
+After proposal is created, normal voting will happen and if succeeded, `execute()` method will be called via delegate call.
 
-To create a new project using this template run
+![Autonomous proposal scheme](./images/scheme.png)
 
-```shell
-$ forge init --template bgd-labs/bgd-forge-template my_new_project
-```
+**Important note**. After proposal execution, users need to revoke their proposition power from a smart contract manually, as the functionality to revoke proposition power from recieving end is not available in current AAVE governance version. 
 
-## Recommended modules
-
-[bgd-labs/solidity-utils](https://github.com/bgd-labs/solidity-utils) - common contracts we use everywhere, ie transparent proxy and around
-
-[bgd-labs/aave-address-book](https://github.com/bgd-labs/aave-address-book) - the best and only source about all deployed Aave ecosystem related contracts across all the chains
-
-[bgd-labs/aave-helpers](https://github.com/bgd-labs/aave-helpers) - useful utils for integration, and not only testing related to Aave ecosystem contracts
-
-[Rari-Capital/solmate](https://github.com/Rari-Capital/solmate) - one of the best sources of base contracts for ERC20, ERC21, which will work with transparent proxy pattern out of the box
-
-[OpenZeppelin/openzeppelin-contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) - another very reputable and well organized source of base contracts for tokens, access control and many others
-
-## Development
-
-This project uses [Foundry](https://getfoundry.sh). See the [book](https://book.getfoundry.sh/getting-started/installation.html) for instructions on how to install and use Foundry.
+## Use case
+On AAVE Governance there are 2 types of executors, SHORT and LONG. 
+Creating proposal for LONG executor (the one which can modify governance itself) require significant proposition power, which no single AAVE holder poses, and it makes sense to delegate proposition power to on-chain smart contract, with clear intend
