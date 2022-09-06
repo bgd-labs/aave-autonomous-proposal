@@ -3,12 +3,11 @@ pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2, IGovernanceStrategy} from 'aave-address-book/AaveAddressBook.sol';
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
+import {IAutonomousProposal} from '../interfaces/IAutonomousProposal.sol';
 
-contract AutonomousProposal {
+contract AutonomousProposal is IAutonomousProposal {
   event ProposalCreated(uint256 proposalID);
-  event ProposalExecuted(uint256 indexed proposalID);
-
-  uint256 private proposalID;
+  event ProposalExecuted();
 
   function getPropositionPower() external view returns (uint256) {
     IGovernanceStrategy strategy = IGovernanceStrategy(
@@ -19,7 +18,7 @@ contract AutonomousProposal {
 
   function create() public returns (uint256) {
     uint256 propositionPower = this.getPropositionPower();
-    require(propositionPower > 80_000, 'Not enough proposition power');
+    require(propositionPower > 80_000 ether, 'Not enough proposition power');
 
     // preparing proposal creation
     address[] memory targets = new address[](1);
@@ -30,10 +29,12 @@ contract AutonomousProposal {
     signatures[0] = 'execute()';
     bytes[] memory calldatas = new bytes[](1);
     calldatas[0] = '';
+
     bool[] memory withDelegatecalls = new bool[](1);
     withDelegatecalls[0] = true;
 
-    proposalID = AaveGovernanceV2.GOV.create(
+
+    uint256 executingProposalID = AaveGovernanceV2.GOV.create(
       IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR),
       targets,
       values,
@@ -42,11 +43,11 @@ contract AutonomousProposal {
       withDelegatecalls,
       0
     );
-    emit ProposalCreated(proposalID);
-    return proposalID;
+    emit ProposalCreated(executingProposalID);
+    return executingProposalID;
   }
 
   function execute() public {
-    emit ProposalExecuted(proposalID);
+    emit ProposalExecuted();
   }
 }

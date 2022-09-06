@@ -14,7 +14,7 @@ interface DelegateContract {
 }
 
 contract AutonomousProposalTest is Test {
-  event ProposalExecuted(uint256 indexed proposalID);
+  event ProposalExecuted();
   event ProposalCreated(uint256 proposalID);
 
   AutonomousProposal public proposalPayload;
@@ -57,8 +57,8 @@ contract AutonomousProposalTest is Test {
   }
 
   function _testProposalExecution() public {
-    vm.expectEmit(true, false, false, false);
-    emit ProposalExecuted(proposalID);
+    vm.expectEmit(false, false, false, false);
+    emit ProposalExecuted();
     GovHelpers.passVoteAndExecute(vm, proposalID);
   }
 }
