@@ -39,6 +39,11 @@ contract AutonomousProposalTest is Test {
     assertEq(proposalPayload.getPropositionPower(), 0);
   }
 
+  function testCreateProposalWithoutPower() public {
+    vm.expectRevert('Not enough proposition power');
+    proposalPayload.create();
+  }
+
   function testPropositionPowerDelegate() public {
     _testCreateProposal();
     _testProposalCreatedProperly();
