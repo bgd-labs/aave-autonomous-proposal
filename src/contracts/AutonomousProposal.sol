@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AaveGovernanceV2, IGovernanceStrategy} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveGovernanceV2, IGovernanceStrategy, AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 import {IAutonomousProposal} from '../interfaces/IAutonomousProposal.sol';
 
 contract AutonomousProposal is IAutonomousProposal {
   event ProposalCreated(uint256 proposalID);
-  event ProposalExecuted();
+  event AutonomousProposalExecuted();
+
+  bool private proposalCreated = false;
 
   function getPropositionPower() external view returns (uint256) {
     IGovernanceStrategy strategy = IGovernanceStrategy(
@@ -17,6 +19,7 @@ contract AutonomousProposal is IAutonomousProposal {
   }
 
   function create() public returns (uint256) {
+    require(proposalCreated == false, 'Already created');
     uint256 propositionPower = this.getPropositionPower();
     require(propositionPower > 80_000 ether, 'Not enough proposition power');
 
@@ -44,10 +47,15 @@ contract AutonomousProposal is IAutonomousProposal {
       0
     );
     emit ProposalCreated(executingProposalID);
+    proposalCreated = true;
     return executingProposalID;
   }
 
   function execute() public {
-    emit ProposalExecuted();
+    address FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
+    AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
+    AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(FEI, 20_000);
+
+    emit AutonomousProposalExecuted();
   }
 }
