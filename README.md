@@ -11,7 +11,7 @@ After proposal is created, normal voting will happen and if succeeded, `execute(
 ![Autonomous proposal scheme][image-1]
 ## Example
 In the repo there is an example on how to change FEI reserveFactor through AutonomousProposal with tests to verify the changes directly on AAVE. 
-FEI and reserveFactor parameters is only for demo purposes only.
+FEI and reserveFactor parameters is for demo purposes only.
 ## How to use? 
 The best way to use the contract would be to clone the repo and change `execute()` method and change `_testProposalExecution` test in `AutonomousProposa.t.sol` to meet desired proposal behaviour.
 But to keep in mind `create()` method has 3 important conditions, each proposal can be created only **once per contract**, proposal can **only be created with 80k** of proposition power and proposal is using `address(this)` as execution target to achieve maximum transparency.
