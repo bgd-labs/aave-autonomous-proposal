@@ -7,7 +7,7 @@ import {GovHelpers, IAaveGov} from 'aave-helpers/GovHelpers.sol';
 import 'forge-std/console.sol';
 import 'forge-std/Test.sol';
 
-import {AutonomousProposal} from '../src/contracts/AutonomousProposal.sol';
+import {FEIExampleAutonomousProposal} from '../src/contracts/FEIExampleAutonomousProposal.sol';
 
 interface DelegateContract {
   function delegate(address delegatee) external;
@@ -16,11 +16,9 @@ interface DelegateContract {
 }
 
 contract AutonomousProposalTest is Test {
-  event AutonomousProposalExecuted();
-  event ProposalCreated(uint256 proposalID);
   address private FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
 
-  AutonomousProposal public proposalPayload;
+  FEIExampleAutonomousProposal public proposalPayload;
   DelegateContract public delegateContract;
   uint256 proposalID;
 
@@ -31,7 +29,7 @@ contract AutonomousProposalTest is Test {
     0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
   function setUp() public {
-    proposalPayload = new AutonomousProposal();
+    proposalPayload = new FEIExampleAutonomousProposal();
     delegateContract = DelegateContract(DELEGATE);
   }
 
@@ -75,8 +73,6 @@ contract AutonomousProposalTest is Test {
       .getReserveConfigurationData(FEI);
     assertEq(reserveFactor, 10_000);
 
-    vm.expectEmit(false, false, false, false);
-    emit AutonomousProposalExecuted();
     GovHelpers.passVoteAndExecute(vm, proposalID);
 
     (, , , , uint256 newReserveFactor, , , , , ) = AaveV2Ethereum

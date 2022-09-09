@@ -3,12 +3,10 @@ pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2, IGovernanceStrategy, AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
-import {IAutonomousProposal} from '../interfaces/IAutonomousProposal.sol';
+import 'forge-std/console.sol';
 
-contract AutonomousProposal is IAutonomousProposal {
+abstract contract AutonomousProposal {
   event ProposalCreated(uint256 proposalID);
-  event AutonomousProposalExecuted();
-
   bool private proposalCreated = false;
 
   function getPropositionPower() external view returns (uint256) {
@@ -51,11 +49,5 @@ contract AutonomousProposal is IAutonomousProposal {
     return executingProposalID;
   }
 
-  function execute() public {
-    address FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
-    AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
-    AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(FEI, 20_000);
-
-    emit AutonomousProposalExecuted();
-  }
+   function execute() virtual external;
 }
