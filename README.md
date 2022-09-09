@@ -22,7 +22,8 @@ But to keep in mind `create()` method has 3 important conditions, each proposal 
 ## Use case
 **Creating proposals for LONG executor**
 On AAVE Governance, there are 2 types of executors, SHORT and LONG. 
-Creating proposal for LONG executor (the one which can modify governance itself) require significant proposition power, which no single AAVE holder poses, and it makes sense to delegate proposition power to on-chain smart contract, with clear intend
+Creating proposal for LONG executor (the one which can modify governance itself) require significant proposition power, which no single AAVE holder poses, and it makes sense to delegate proposition power to on-chain smart contract, with clear intend.
+
 **Deploying proposal without proposition power**
 With AutonomousProposal it’s easy to create a proposal even with 0 proposition power and ask the community to back it up. It’s way easier and more transparent to ask for proposition power to an already deployed and immutable smart contract, rather than a user wallet with intention to create a certain proposal.
 
