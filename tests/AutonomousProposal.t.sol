@@ -33,12 +33,8 @@ contract AutonomousProposalTest is Test {
     delegateContract = DelegateContract(DELEGATE);
   }
 
-  function testEmptyPropositionPower() public {
-    assertEq(proposalPayload.getPropositionPower(), 0);
-  }
-
   function testCreateProposalWithoutPower() public {
-    vm.expectRevert('Not enough proposition power');
+    vm.expectRevert('PROPOSITION_CREATION_INVALID');
     proposalPayload.create();
   }
 
@@ -86,7 +82,7 @@ contract AutonomousProposalTest is Test {
     delegateContract.delegateByType(address(proposalPayload), 1);
     vm.stopPrank();
     vm.roll(block.number + 1);
-    vm.expectRevert(bytes('Already created'));
+    vm.expectRevert(bytes('PROPOSAL_ALREADY_CREATED'));
     proposalID = proposalPayload.create();
   }
 }
