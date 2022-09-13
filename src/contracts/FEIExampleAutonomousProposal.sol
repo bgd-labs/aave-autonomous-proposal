@@ -6,15 +6,10 @@ import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 import {AutonomousProposal} from './AutonomousProposal.sol';
 
 contract FEIExampleAutonomousProposal is AutonomousProposal {
-  bool public proposalCreated;
-
-
   // Example on how to create a short executor proposal
   // referencing the same contract address
   // and handling duplicateds
   function create() external override returns (uint256) {
-    require(proposalCreated == false, 'PROPOSAL_ALREADY_CREATED');
-
     // preparing proposal creation
     address[] memory targets = new address[](1);
     targets[0] = address(this);
@@ -37,7 +32,6 @@ contract FEIExampleAutonomousProposal is AutonomousProposal {
       withDelegatecalls,
       0
     );
-    proposalCreated = true;
     return proposalID;
   }
 
