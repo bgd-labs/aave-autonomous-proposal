@@ -10,29 +10,8 @@ contract FEIExampleAutonomousProposal is AutonomousProposal {
   // referencing the same contract address
   // and handling duplicateds
   function create() external override returns (uint256) {
-    // preparing proposal creation
-    address[] memory targets = new address[](1);
-    targets[0] = address(this);
-    uint256[] memory values = new uint256[](1);
-    values[0] = 0;
-    string[] memory signatures = new string[](1);
-    signatures[0] = 'execute()';
-    bytes[] memory calldatas = new bytes[](1);
-    calldatas[0] = '';
-
-    bool[] memory withDelegatecalls = new bool[](1);
-    withDelegatecalls[0] = true;
-
-    uint256 proposalID = AaveGovernanceV2.GOV.create(
-      IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR),
-      targets,
-      values,
-      signatures,
-      calldatas,
-      withDelegatecalls,
-      0
-    );
-    return proposalID;
+    bytes32 forumDiscussionIPFSHash = 0;
+    return this.createSimpleProposal(forumDiscussionIPFSHash);
   }
 
   // Providing execute() solid implementation which will be called after proposal approved
