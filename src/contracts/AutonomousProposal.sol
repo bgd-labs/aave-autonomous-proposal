@@ -6,30 +6,33 @@ import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 abstract contract AutonomousProposal {
   uint256 public proposalCreatedID;
 
+  ProposalExecutorType public immutable executorType;
+  bytes32 public immutable ipfsHash;
+
+
   enum ProposalExecutorType {
     LONG,
     SHORT
   }
 
-  function create() external virtual returns(uint256);
+  constructor(ProposalExecutorType _executorType, bytes32 _ipfsHash) {
+    executorType = _executorType;
+    ipfsHash = _ipfsHash;
+  }
 
   function execute() public virtual;
-
-  modifier onlyOneCreation() {
-    require(proposalCreatedID == 0, 'PROPOSAL_ALREADY_CREATED');
-    _;
-  }
 
   function vote() public {
     require(proposalCreatedID > 0, 'PROPOSAL_NOT_CREATED');
     AaveGovernanceV2.GOV.submitVote(proposalCreatedID, true);
   }
 
-  function _create(ProposalExecutorType executorType, bytes32 ipfsHash)
-    internal
-    onlyOneCreation
+  function create()
+    external
     returns (uint256)
   {
+    require(proposalCreatedID == 0, 'PROPOSAL_ALREADY_CREATED');
+
     IExecutorWithTimelock executor = executorType == ProposalExecutorType.LONG
       ? IExecutorWithTimelock(AaveGovernanceV2.LONG_EXECUTOR)
       : IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR);

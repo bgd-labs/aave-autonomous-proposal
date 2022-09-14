@@ -22,6 +22,8 @@ contract AutonomousProposalTest is Test {
   DelegateContract public delegateContract;
   uint256 proposalID;
 
+  uint256 mainnetFork;
+
   address internal constant AAVE_WHALE =
     0x25F2226B597E8F9514B3F68F00f494cF4f286491;
 
@@ -31,6 +33,8 @@ contract AutonomousProposalTest is Test {
   function setUp() public {
     proposalPayload = new FEIExampleAutonomousProposal();
     delegateContract = DelegateContract(DELEGATE);
+    mainnetFork = vm.createFork(vm.rpcUrl('ethereum'), 15532148);
+    vm.selectFork(mainnetFork);
   }
 
   function testCreateProposalWithoutPower() public {
