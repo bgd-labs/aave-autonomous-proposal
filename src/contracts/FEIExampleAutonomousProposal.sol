@@ -9,13 +9,13 @@ contract FEIExampleAutonomousProposal is AutonomousProposal {
   // Example on how to create a short executor proposal
   // referencing the same contract address
   // and handling duplicateds
-  function create() external override returns (uint256) {
+  function create() public override returns(uint256) {
     bytes32 forumDiscussionIPFSHash = 0;
-    return this.createSimpleProposal(forumDiscussionIPFSHash);
+    return _create(ProposalExecutorType.SHORT, forumDiscussionIPFSHash);
   }
 
   // Providing execute() solid implementation which will be called after proposal approved
-  function execute() external override {
+  function execute() public override {
     address FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
     AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
     AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(FEI, 20_000);

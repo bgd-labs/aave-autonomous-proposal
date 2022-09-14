@@ -35,7 +35,7 @@ contract AutonomousProposalTest is Test {
 
   function testCreateProposalWithoutPower() public {
     vm.expectRevert('PROPOSITION_CREATION_INVALID');
-    proposalPayload.createProposal();
+    proposalPayload.create();
   }
 
   function testPropositionPowerDelegate() public {
@@ -50,7 +50,7 @@ contract AutonomousProposalTest is Test {
     delegateContract.delegateByType(address(proposalPayload), 1);
     vm.stopPrank();
     vm.roll(block.number + 1);
-    proposalID = proposalPayload.createProposal();
+    proposalID = proposalPayload.create();
   }
 
   function _testProposalCreatedProperly() public {
@@ -83,6 +83,30 @@ contract AutonomousProposalTest is Test {
     vm.stopPrank();
     vm.roll(block.number + 1);
     vm.expectRevert(bytes('PROPOSAL_ALREADY_CREATED'));
-    proposalID = proposalPayload.createProposal();
+    proposalID = proposalPayload.create();
+  }
+
+  function testVoting() public {
+    vm.startPrank(AAVE_WHALE);
+    delegateContract.delegate(address(proposalPayload));
+    vm.stopPrank();
+    vm.roll(block.number + 1);
+
+    uint256 powerDelegatedProposalID = proposalPayload.create();
+    vm.roll(block.number + 1);
+
+    IAaveGovernanceV2.Vote memory initialVoteOnProposal = AaveGovernanceV2
+      .GOV
+      .getVoteOnProposal(powerDelegatedProposalID, address(proposalPayload));
+    assertEq(initialVoteOnProposal.votingPower, 0);
+
+    proposalPayload.vote();
+
+    IAaveGovernanceV2.Vote memory voteOnProposal = AaveGovernanceV2
+      .GOV
+      .getVoteOnProposal(powerDelegatedProposalID, address(proposalPayload));
+
+    assertTrue(voteOnProposal.votingPower > 0);
+    assertTrue(voteOnProposal.support);
   }
 }
