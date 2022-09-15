@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AaveGovernanceV2, IGovernanceStrategy, AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
-import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
+import {AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
 import {AutonomousProposal} from './AutonomousProposal.sol';
 
+/* @author BGD Labs
+ * @dev Example of using autonomous proposal to change FEI risk parameters
+ */
 contract FEIExampleAutonomousProposal is AutonomousProposal {
   constructor() AutonomousProposal(ProposalExecutorType.SHORT, 0x1d008d832f4a2aef5eb81bf1ff8becbd6bc67e6405ec3921b984569389852b66) {}
 
