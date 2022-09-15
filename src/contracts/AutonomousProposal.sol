@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 
+ /* @author BGD Labs
+ * @dev Aave proposition power aggregator contract, with helper methods to create fully autonomous proposal referencing it's own address
+ * - Create proposal once per deployment.
+ * - Vote on created proposal in case accidental voting power was delegated with proposition power
+ */
 abstract contract AutonomousProposal {
   uint256 public _proposalCreatedID;
 

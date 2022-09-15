@@ -6,7 +6,7 @@ import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 import {AutonomousProposal} from './AutonomousProposal.sol';
 
 contract FEIExampleAutonomousProposal is AutonomousProposal {
-  constructor() AutonomousProposal(ProposalExecutorType.SHORT, 0) {}
+  constructor() AutonomousProposal(ProposalExecutorType.SHORT, 0x1d008d832f4a2aef5eb81bf1ff8becbd6bc67e6405ec3921b984569389852b66) {}
 
   function execute() public override {
     address FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
