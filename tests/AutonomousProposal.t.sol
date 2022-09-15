@@ -68,17 +68,25 @@ contract AutonomousProposalTest is Test {
   }
 
   function _testProposalExecution() public {
+
+    vm.startPrank(address(AaveGovernanceV2.SHORT_EXECUTOR));
+    AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
+    AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(FEI, 20_000);
+    vm.stopPrank();
+    vm.roll(block.number + 1);
+
     (, , , , uint256 reserveFactor, , , , , ) = AaveV2Ethereum
       .AAVE_PROTOCOL_DATA_PROVIDER
       .getReserveConfigurationData(FEI);
-    assertEq(reserveFactor, 10_000);
+
+    assertEq(reserveFactor, 20_000);
 
     GovHelpers.passVoteAndExecute(vm, proposalID);
 
     (, , , , uint256 newReserveFactor, , , , , ) = AaveV2Ethereum
       .AAVE_PROTOCOL_DATA_PROVIDER
       .getReserveConfigurationData(FEI);
-    assertEq(newReserveFactor, 20_000);
+    assertEq(newReserveFactor, 10_000);
   }
 
   function _testProposalCreatedOnlyOnceFail() public {
