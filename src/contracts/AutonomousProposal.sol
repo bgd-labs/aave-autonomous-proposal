@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+
 import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
 import {IExecutorWithTimelock} from 'aave-address-book/AaveGovernanceV2.sol';
 
 abstract contract AutonomousProposal {
-  uint256 public proposalCreatedID;
+  uint256 public _proposalCreatedID;
 
-  ProposalExecutorType public immutable executorType;
+  IExecutorWithTimelock public immutable executor;
   bytes32 public immutable ipfsHash;
-
 
   enum ProposalExecutorType {
     LONG,
@@ -16,26 +16,19 @@ abstract contract AutonomousProposal {
   }
 
   constructor(ProposalExecutorType _executorType, bytes32 _ipfsHash) {
-    executorType = _executorType;
+    executor = _executorType == ProposalExecutorType.LONG
+      ? IExecutorWithTimelock(AaveGovernanceV2.LONG_EXECUTOR)
+      : IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR);
     ipfsHash = _ipfsHash;
   }
 
-  function execute() public virtual;
-
   function vote() public {
-    require(proposalCreatedID > 0, 'PROPOSAL_NOT_CREATED');
-    AaveGovernanceV2.GOV.submitVote(proposalCreatedID, true);
+    require(_proposalCreatedID > 0, 'PROPOSAL_NOT_CREATED');
+    AaveGovernanceV2.GOV.submitVote(_proposalCreatedID, true);
   }
 
-  function create()
-    external
-    returns (uint256)
-  {
-    require(proposalCreatedID == 0, 'PROPOSAL_ALREADY_CREATED');
-
-    IExecutorWithTimelock executor = executorType == ProposalExecutorType.LONG
-      ? IExecutorWithTimelock(AaveGovernanceV2.LONG_EXECUTOR)
-      : IExecutorWithTimelock(AaveGovernanceV2.SHORT_EXECUTOR);
+  function create() external returns (uint256) {
+    require(_proposalCreatedID == 0, 'PROPOSAL_ALREADY_CREATED');
 
     address[] memory targets = new address[](1);
     targets[0] = address(this);
@@ -49,16 +42,21 @@ abstract contract AutonomousProposal {
     bool[] memory withDelegatecalls = new bool[](1);
     withDelegatecalls[0] = true;
 
-    proposalCreatedID = AaveGovernanceV2.GOV.create(
-      executor,
-      targets,
-      values,
-      signatures,
-      calldatas,
-      withDelegatecalls,
-      ipfsHash
-    );
-
-    return proposalCreatedID;
+    return
+      _proposalCreatedID = AaveGovernanceV2.GOV.create(
+        executor,
+        targets,
+        values,
+        signatures,
+        calldatas,
+        withDelegatecalls,
+        ipfsHash
+      );
   }
+
+  function getProposalCreatedId() external view returns (uint256) {
+    return _proposalCreatedID;
+  }
+
+  function execute() public virtual;
 }
