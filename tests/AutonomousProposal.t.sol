@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {AaveGovernanceV2, IAaveGovernanceV2} from 'aave-address-book/AAVEGovernanceV2.sol';
+import {AaveGovernanceV2, IAaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 import {AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
 import {GovHelpers, IAaveGov} from 'aave-helpers/GovHelpers.sol';
 import 'forge-std/console.sol';
