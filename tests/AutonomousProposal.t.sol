@@ -35,8 +35,6 @@ contract AutonomousProposalTest is Test {
     vm.selectFork(mainnetFork);
     proposalPayload = new FEIExampleAutonomousProposal();
     delegateContract = DelegateContract(DELEGATE);
-    vm.makePersistent(address(proposalPayload));
-    vm.makePersistent(address(delegateContract));
   }
 
   function testCreateProposalWithoutPower() public {
