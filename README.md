@@ -2,7 +2,7 @@
 ## Why?
 Delegating proposition power to a smart contract instead of wallet address gives ultimate transparency to how the proposition power would be used and what the created proposal body will be.
 ## The flow
-Each deployment of autonomous proposal need to provide only 2 parameters in constructor: type of executor, ipfs hash and `create()` method which will be called after voting is closed.
+Each deployment of autonomous proposal need to provide only 2 parameters in constructor: type of executor, ipfs hash and `execute()` method which will be called after voting is closed.
 This way, an autonomous proposal will always have external `create()` method implemented in abstract contract referencing itself.
 After enough proposition power is acquired, `created()` method can be called by anyone.
 Once a proposal is created, proposal ID is saved and create() method can not be called again.
