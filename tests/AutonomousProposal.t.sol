@@ -31,10 +31,12 @@ contract AutonomousProposalTest is Test {
     0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
 
   function setUp() public {
-    proposalPayload = new FEIExampleAutonomousProposal();
-    delegateContract = DelegateContract(DELEGATE);
     mainnetFork = vm.createFork(vm.rpcUrl('ethereum'), 15532148);
     vm.selectFork(mainnetFork);
+    proposalPayload = new FEIExampleAutonomousProposal();
+    delegateContract = DelegateContract(DELEGATE);
+    vm.makePersistent(address(proposalPayload));
+    vm.makePersistent(address(delegateContract));
   }
 
   function testCreateProposalWithoutPower() public {
@@ -68,7 +70,6 @@ contract AutonomousProposalTest is Test {
   }
 
   function _testProposalExecution() public {
-
     vm.startPrank(address(AaveGovernanceV2.SHORT_EXECUTOR));
     AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
     AaveV2Ethereum.POOL_CONFIGURATOR.setReserveFactor(FEI, 20_000);

@@ -5,7 +5,8 @@ import {AaveV2Ethereum} from 'aave-address-book/AaveAddressBook.sol';
 import {AutonomousProposal} from './AutonomousProposal.sol';
 
 /* @author BGD Labs
- * @dev Example of using autonomous proposal to change FEI risk parameters
+ * @dev Example of using autonomous proposal to simulate proposal 96 to change FEI risk parameters forum discussion here
+ * https://app.aave.com/governance/proposal/96
  */
 contract FEIExampleAutonomousProposal is AutonomousProposal {
   constructor() AutonomousProposal(ProposalExecutorType.SHORT, 0x86FB2C1C7056F55DDFEBE82B634419B2170C5CB5B981DF6A0D19523DBA959575) {}
