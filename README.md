@@ -22,12 +22,9 @@ https://etherscan.io/tx/0x1bd77b5a8982dd1b1cfdf337f68c3f802cf36755e21f4874b319d9
 
 **Important note**. After proposal creation, users need to revoke their proposition power from a smart contract manually, as the functionality to revoke proposition power from the recieving end is not available in current AAVE governance version.
 
-## Use case
-**Creating proposals for LONG executor**
-On AAVE Governance, there are 2 types of executors, SHORT and LONG.
-Creating proposal for LONG executor (the one which can modify governance itself) require significant proposition power, which no single AAVE holder poses, and it makes sense to delegate proposition power to on-chain smart contract, with clear intend.
-
-**Deploying proposal without proposition power**
-With AutonomousProposal it’s easy to create a proposal even with 0 proposition power and ask the community to back it up. It’s way easier and more transparent to ask for proposition power to an already deployed and immutable smart contract, rather than a user wallet with intention to create a certain proposal.
+## There are multiple benefits of using contract based on AutonomousProposal instead of custom implementation
+- Deploying proposal becomes easier than ever. Providing only necessary parameters, like ipfs hash, executor and `execute()` method itself. It’s the most minimalistic boilerplate required for proposal deployment.
+- Deploying proposal implementation ahead of proposition delegation leaves no room for hidden behavior. You can see exactly what will be inside the proposal and how it would be created before delegating any proposition power, since the contract is immutable, there is no other way to use delegated proposition power
+- Lowering entry barrier for newcomers to AAVE ecosystem. Good ideas come from different places. Deploying proposal and asking community to back-up with proposition power is the easiest way for non-AAVE holders to engage with on-chain governance
 
 [image-1]:	./images/scheme.png
