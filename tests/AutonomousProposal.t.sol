@@ -9,13 +9,13 @@ import {FEIExampleAutonomousProposal} from './utils/FEIExampleAutonomousProposal
 import {FEIPayload} from './utils/FEIPayload.sol';
 
 contract feiAutonomousProposalTest is Test {
-  uint256 public immutable PROPOSAL_CREATION_TIMESTAMP;
-
   address public constant FEI = 0x956F47F50A910163D8BF957Cf5846D573E7f87CA;
   bytes32 public constant FEI_IPFS_HASH =
     0xdb0ac263eceb481e437f455dd309d42d1313489ce25c27e39cfae9a5b513672c;
 
   uint256 public beforeProposalCount;
+
+  uint256 public PROPOSAL_CREATION_TIMESTAMP;
 
   FEIExampleAutonomousProposal public feiAutonomousProposal;
   FEIPayload public feiPayload;
@@ -34,6 +34,7 @@ contract feiAutonomousProposalTest is Test {
     );
   }
 
+  /// TEST CREATION
   function testCreateWhenAllInfoCorrect() public {
     hoax(GovHelpers.AAVE_WHALE);
     IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
@@ -42,6 +43,7 @@ contract feiAutonomousProposalTest is Test {
     );
 
     vm.roll(block.number + 10);
+    skip(1 days + 1);
 
     feiAutonomousProposal.create();
 
@@ -60,6 +62,108 @@ contract feiAutonomousProposalTest is Test {
     assertEq(keccak256(proposal.calldatas[0]), keccak256(''));
   }
 
+  function testCreateProposalTwice() public {
+    hoax(GovHelpers.AAVE_WHALE);
+    IGovernancePowerDelegationToken(GovHelpers.AAVE).delegateByType(
+      address(feiAutonomousProposal),
+      IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER
+    );
+
+    vm.roll(block.number + 10);
+    skip(1 days + 1);
+
+    feiAutonomousProposal.create();
+
+    vm.expectRevert(bytes('PROPOSAL_ALREADY_CREATED'));
+    feiAutonomousProposal.create();
+  }
+
+  function testCreateProposalWithWrongIpfs() public {
+    vm.expectRevert(bytes('PAYLOAD_IPFS_HASH_BYTES32_0'));
+    new FEIExampleAutonomousProposal(
+      address(feiPayload),
+      bytes32(0),
+      block.timestamp + 10
+    );
+  }
+
+  function testCreateProposalWithWrongPayload() public {
+    vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
+    new FEIExampleAutonomousProposal(
+      address(0),
+      FEI_IPFS_HASH,
+      block.timestamp + 10
+    );
+  }
+
+  function testCreateProposalWithWrongTimestamp() public {
+    vm.expectRevert(bytes('CREATION_TIMESTAMP_TO_EARLY'));
+    new FEIExampleAutonomousProposal(address(feiPayload), FEI_IPFS_HASH, 0);
+  }
+
+  function testCreateProposalWithoutPropositionPower() public {
+    FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
+      address(feiPayload),
+      FEI_IPFS_HASH,
+      block.timestamp + 10
+    );
+    skip(11);
+
+    vm.expectRevert((bytes('PROPOSITION_CREATION_INVALID')));
+    autonomous.create();
+  }
+
+  function testCreateInIncorrectTimestamp() public {
+    FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
+      address(feiPayload),
+      FEI_IPFS_HASH,
+      block.timestamp + 10
+    );
+
+    vm.expectRevert((bytes('CREATION_TIMESTAMP_NOT_YET_REACHED')));
+    autonomous.create();
+  }
+
+  function testCreateTimestampBiggerGracePeriod() public {
+    uint256 time = block.timestamp + 10;
+    FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
+      address(feiPayload),
+      FEI_IPFS_HASH,
+      time
+    );
+
+    skip(autonomous.GRACE_PERIOD() + 12);
+    vm.expectRevert((bytes('TIMESTAMP_BIGGER_THAN_GRACE_PERIOD')));
+    autonomous.create();
+  }
+
+  /// TEST VOTE
+  function testVoteOnProposals() public {
+    _delegateVotingPower();
+    _create();
+
+    uint256 proposalsCount = GovHelpers.GOV.getProposalsCount();
+
+    vm.roll(block.number + AaveGovernanceV2.GOV.getVotingDelay() + 1);
+
+    feiAutonomousProposal.vote();
+
+    uint256 currentPower = IGovernancePowerDelegationToken(GovHelpers.AAVE)
+      .getPowerCurrent(
+        address(feiAutonomousProposal),
+        IGovernancePowerDelegationToken.DelegationType.VOTING_POWER
+      );
+    IAaveGovernanceV2.ProposalWithoutVotes memory proposal = GovHelpers
+      .getProposalById(proposalsCount - 1);
+    assertEq(proposal.forVotes, currentPower);
+  }
+
+  function testVotingWhenProposalsNotCreated() public {
+    vm.expectRevert((bytes('PROPOSAL_NOT_CREATED')));
+    feiAutonomousProposal.vote();
+  }
+
+  /// TEST TOKEN RESCUE
   function testEmergencyTokenTransfer() public {
     hoax(GovHelpers.AAVE_WHALE);
     IERC20(GovHelpers.AAVE).transfer(address(feiAutonomousProposal), 3 ether);
@@ -111,6 +215,7 @@ contract feiAutonomousProposalTest is Test {
       IGovernancePowerDelegationToken.DelegationType.PROPOSITION_POWER
     );
     vm.roll(block.number + 1);
+    skip(1 days + 1);
     feiAutonomousProposal.create();
   }
 
@@ -122,57 +227,4 @@ contract feiAutonomousProposalTest is Test {
     );
     vm.roll(block.number + 1);
   }
-
-  //  function testCreateProposalWithoutPower() public {
-  //    vm.expectRevert('PROPOSITION_CREATION_INVALID');
-  //    proposalPayload.createProposal();
-  //  }
-  //
-  //  function testPropositionPowerDelegate() public {
-  //    _testCreateProposal();
-  //    _testProposalCreatedProperly();
-  //    _testProposalExecution();
-  //    _testProposalCreatedOnlyOnceFail();
-  //  }
-  //
-  //  function _testCreateProposal() public {
-  //    vm.startPrank(AAVE_WHALE);
-  //    delegateContract.delegateByType(address(proposalPayload), 1);
-  //    vm.stopPrank();
-  //    vm.roll(block.number + 1);
-  //    proposalID = proposalPayload.createProposal();
-  //  }
-  //
-  //  function _testProposalCreatedProperly() public {
-  //    assertTrue(proposalID > 0, 'Proposal was not created');
-  //
-  //    IAaveGovernanceV2.ProposalWithoutVotes
-  //      memory createdProposal = AaveGovernanceV2.GOV.getProposalById(proposalID);
-  //    proposalID = createdProposal.id;
-  //
-  //    assertEq(createdProposal.creator, address(proposalPayload));
-  //  }
-  //
-  //  function _testProposalExecution() public {
-  //    (, , , , uint256 reserveFactor, , , , , ) = AaveV2Ethereum
-  //      .AAVE_PROTOCOL_DATA_PROVIDER
-  //      .getReserveConfigurationData(FEI);
-  //    assertEq(reserveFactor, 10_000);
-  //
-  //    GovHelpers.passVoteAndExecute(vm, proposalID);
-  //
-  //    (, , , , uint256 newReserveFactor, , , , , ) = AaveV2Ethereum
-  //      .AAVE_PROTOCOL_DATA_PROVIDER
-  //      .getReserveConfigurationData(FEI);
-  //    assertEq(newReserveFactor, 20_000);
-  //  }
-  //
-  //  function _testProposalCreatedOnlyOnceFail() public {
-  //    vm.startPrank(AAVE_WHALE);
-  //    delegateContract.delegateByType(address(proposalPayload), 1);
-  //    vm.stopPrank();
-  //    vm.roll(block.number + 1);
-  //    vm.expectRevert(bytes('PROPOSAL_ALREADY_CREATED'));
-  //    proposalID = proposalPayload.createProposal();
-  //  }
 }

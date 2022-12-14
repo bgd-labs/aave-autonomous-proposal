@@ -16,6 +16,13 @@ contract FEIExampleAutonomousProposal is AutonomousProposal {
     bytes32 ipfsHash,
     uint256 proposalCreationTimestamp
   ) AutonomousProposal(proposalCreationTimestamp) {
+    require(payload != address(0), 'PAYLOAD_ADDRESS_0');
+    require(ipfsHash != bytes32(0), 'PAYLOAD_IPFS_HASH_BYTES32_0');
+    require(
+      proposalCreationTimestamp > block.timestamp,
+      'CREATION_TIMESTAMP_TO_EARLY'
+    );
+
     PAYLOAD = payload;
     IPFS_HASH = ipfsHash;
   }

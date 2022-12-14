@@ -65,16 +65,15 @@ abstract contract AutonomousProposal is IAutonomousProposal {
     bytes32 ipfsHash,
     ProposalParams[] memory proposalParams
   ) internal returns (uint256) {
-    uint256 paramsLength = proposalParams.length;
-    require(paramsLength > 0, 'PROPOSAL NEEDS AT LEAST ONE ACTION');
+    require(proposalParams.length > 0, 'PROPOSAL NEEDS AT LEAST ONE ACTION');
 
-    address[] memory targets = new address[](paramsLength);
-    uint256[] memory values = new uint256[](paramsLength);
-    string[] memory signatures = new string[](paramsLength);
-    bytes[] memory calldatas = new bytes[](paramsLength);
-    bool[] memory withDelegatecalls = new bool[](paramsLength);
+    address[] memory targets = new address[](proposalParams.length);
+    uint256[] memory values = new uint256[](proposalParams.length);
+    string[] memory signatures = new string[](proposalParams.length);
+    bytes[] memory calldatas = new bytes[](proposalParams.length);
+    bool[] memory withDelegatecalls = new bool[](proposalParams.length);
 
-    for (uint256 i; i < paramsLength; i++) {
+    for (uint256 i; i < proposalParams.length; i++) {
       targets[i] = proposalParams[i].target;
       values[i] = proposalParams[i].value;
       calldatas[i] = proposalParams[i].callData;
