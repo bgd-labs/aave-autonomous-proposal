@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
-import {AutonomousProposal} from '../src/contracts/AutonomousProposal.sol';
+import {AutonomousProposal} from '../../src/contracts/AutonomousProposal.sol';
 
 contract FEIExampleAutonomousProposal is AutonomousProposal {
   address public immutable PAYLOAD;
@@ -26,7 +26,7 @@ contract FEIExampleAutonomousProposal is AutonomousProposal {
     ProposalParams[] memory proposalParams = new ProposalParams[](1);
     proposalParams[0] = ProposalParams({
       target: PAYLOAD,
-      widthDelegateCall: true,
+      withDelegateCall: true,
       value: 0,
       signature: 'execute()',
       callData: ''

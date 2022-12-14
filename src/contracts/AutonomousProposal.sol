@@ -36,7 +36,7 @@ abstract contract AutonomousProposal is IAutonomousProposal {
   }
 
   /// @inheritdoc IAutonomousProposal
-  function create() external virtual inCreationWindow;
+  function create() external virtual;
 
   /// @inheritdoc IAutonomousProposal
   function vote() external virtual;
@@ -63,9 +63,9 @@ abstract contract AutonomousProposal is IAutonomousProposal {
   function _createProposal(
     address executor,
     bytes32 ipfsHash,
-    ProposalParams[] proposalParams
+    ProposalParams[] memory proposalParams
   ) internal returns (uint256) {
-    uint256 paramsLength = params.length;
+    uint256 paramsLength = proposalParams.length;
     require(paramsLength > 0, 'PROPOSAL NEEDS AT LEAST ONE ACTION');
 
     address[] memory targets = new address[](paramsLength);
