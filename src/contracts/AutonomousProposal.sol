@@ -6,6 +6,16 @@ import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
 import {SafeERC20} from 'solidity-utils/contracts/oz-common/SafeERC20.sol';
 import {IAutonomousProposal} from './interfaces/IAutonomousProposal.sol';
 
+/**
+ * @title Autonomous Proposal
+ * @author BGD Labs
+ * @notice Abstract contract implementing only generic logic for an autonomous proposal. Only
+           checking for creating window, and implementing a generic internal method to create a proposal on
+           governance contract
+ * @dev Implement create method with the necessary logic to construct the proposal or proposals parameters necessary
+        for creation.
+ * @dev Implement vote method with the necessary logic to call governance proposal vote method.
+ */
 abstract contract AutonomousProposal is IAutonomousProposal {
   using SafeERC20 for IERC20;
 
