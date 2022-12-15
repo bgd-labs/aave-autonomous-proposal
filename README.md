@@ -3,11 +3,13 @@
 Delegating proposition power to a smart contract instead of wallet address gives ultimate transparency to how the proposition power would be used and what the created proposal body will be.
 
 ## The flow
-An Autonomous proposal must implement 3 methods
+An Autonomous proposal must implement 2 methods
 - _create()_: This method can be called by anyone when enough people delegate proposition power to the contract.
 - _vote()_: This method can be called by anyone once the proposal has been created. This method will use any voting power delegated to this contract to vote.
 
-
+## Simple Autonomous Proposal
+[SimpleAutonomousProposal](/src/contracts/SimpleAutonomousProposal.sol): Using this contract, it can be able to generate a simple autonomous proposal, by just supplying
+a few params on constructor.
 
 ![Autonomous proposal scheme][image-1]
 
@@ -30,8 +32,10 @@ With AutonomousProposal it’s easy to create a proposal even with 0 proposition
 **Important note**. After proposal creation, users need to maintain the proposition power on the contract until the proposals have been executed, or they can be canceled.
 
 ## Example
-[FEIExampleAutonomousProposal.sol](/tests/utils/FEIExampleAutonomousProposal.sol) is an example on how to change FEI reserveFactor through AutonomousProposal with tests to verify the changes directly on AAVE.
+[FEIExampleAutonomousProposal.sol](/tests/utils/FEIExampleAutonomousProposal.sol) is an example on how to change FEI reserveFactor through AutonomousProposal.
 FEI parameters are for demo purposes only. But it should provide sufficient example on how easy it is to create your own proposals.
+It also has another payload with a simple event emission, to illustrate that it can have custom logic.
+[SimpleAutonomousProposalTest](/tests/SimpleAutonomousProposal.t.sol) shows how to use the SimpleAutonomousProposal contract for the most common use case of only one payload per proposal.
 
 ## Usage
 You need to set up you local `.env` file:
