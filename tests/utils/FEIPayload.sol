@@ -10,3 +10,11 @@ contract FEIPayload {
     AaveV2Ethereum.POOL_CONFIGURATOR.freezeReserve(FEI);
   }
 }
+
+contract OtherPayload {
+  event EventEmittedWith(uint256 someParam);
+
+  function execute(uint256 someParam) external {
+    emit EventEmittedWith(someParam);
+  }
+}

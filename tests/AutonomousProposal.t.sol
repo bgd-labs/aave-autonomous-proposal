@@ -6,7 +6,7 @@ import {GovHelpers, IAaveGovernanceV2, AaveGovernanceV2} from 'aave-helpers/GovH
 import {IERC20} from 'solidity-utils/contracts/oz-common/interfaces/IERC20.sol';
 import {IGovernancePowerDelegationToken} from './utils/IGovernancePowerDelegationToken.sol';
 import {FEIExampleAutonomousProposal} from './utils/FEIExampleAutonomousProposal.sol';
-import {FEIPayload} from './utils/FEIPayload.sol';
+import {FEIPayload, OtherPayload} from './utils/FEIPayload.sol';
 
 contract feiAutonomousProposalTest is Test {
   bytes32 public constant FEI_IPFS_HASH =
@@ -18,6 +18,7 @@ contract feiAutonomousProposalTest is Test {
 
   FEIExampleAutonomousProposal public feiAutonomousProposal;
   FEIPayload public feiPayload;
+  OtherPayload public otherPayload;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('ethereum'), 15939210);
@@ -25,9 +26,11 @@ contract feiAutonomousProposalTest is Test {
 
     PROPOSAL_CREATION_TIMESTAMP = block.timestamp + 1 days;
 
+    otherPayload = new OtherPayload();
     feiPayload = new FEIPayload();
     feiAutonomousProposal = new FEIExampleAutonomousProposal(
       address(feiPayload),
+      address(otherPayload),
       FEI_IPFS_HASH,
       PROPOSAL_CREATION_TIMESTAMP
     );
@@ -52,13 +55,19 @@ contract feiAutonomousProposalTest is Test {
     IAaveGovernanceV2.ProposalWithoutVotes memory proposal = GovHelpers
       .getProposalById(proposalsCount - 1);
     assertEq(proposal.targets[0], address(feiPayload));
+    assertEq(proposal.targets[1], address(otherPayload));
     assertEq(proposal.ipfsHash, FEI_IPFS_HASH);
     assertEq(address(proposal.executor), AaveGovernanceV2.SHORT_EXECUTOR);
     assertEq(
       keccak256(abi.encode(proposal.signatures[0])),
       keccak256(abi.encode('execute()'))
     );
+    assertEq(
+      keccak256(abi.encode(proposal.signatures[1])),
+      keccak256(abi.encode('execute(uint256)'))
+    );
     assertEq(keccak256(proposal.calldatas[0]), keccak256(''));
+    assertEq(keccak256(proposal.calldatas[1]), keccak256(abi.encode(3)));
   }
 
   function testCreateProposalTwice() public {
@@ -81,6 +90,7 @@ contract feiAutonomousProposalTest is Test {
     vm.expectRevert(bytes('PAYLOAD_IPFS_HASH_BYTES32_0'));
     new FEIExampleAutonomousProposal(
       address(feiPayload),
+      address(otherPayload),
       bytes32(0),
       block.timestamp + 10
     );
@@ -90,6 +100,7 @@ contract feiAutonomousProposalTest is Test {
     vm.expectRevert(bytes('PAYLOAD_ADDRESS_0'));
     new FEIExampleAutonomousProposal(
       address(0),
+      address(otherPayload),
       FEI_IPFS_HASH,
       block.timestamp + 10
     );
@@ -97,12 +108,18 @@ contract feiAutonomousProposalTest is Test {
 
   function testCreateProposalWithWrongTimestamp() public {
     vm.expectRevert(bytes('CREATION_TIMESTAMP_TO_EARLY'));
-    new FEIExampleAutonomousProposal(address(feiPayload), FEI_IPFS_HASH, 0);
+    new FEIExampleAutonomousProposal(
+      address(feiPayload),
+      address(otherPayload),
+      FEI_IPFS_HASH,
+      0
+    );
   }
 
   function testCreateProposalWithoutPropositionPower() public {
     FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
       address(feiPayload),
+      address(otherPayload),
       FEI_IPFS_HASH,
       block.timestamp + 10
     );
@@ -115,6 +132,7 @@ contract feiAutonomousProposalTest is Test {
   function testCreateInIncorrectTimestamp() public {
     FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
       address(feiPayload),
+      address(otherPayload),
       FEI_IPFS_HASH,
       block.timestamp + 10
     );
@@ -127,6 +145,7 @@ contract feiAutonomousProposalTest is Test {
     uint256 time = block.timestamp + 10;
     FEIExampleAutonomousProposal autonomous = new FEIExampleAutonomousProposal(
       address(feiPayload),
+      address(otherPayload),
       FEI_IPFS_HASH,
       time
     );
