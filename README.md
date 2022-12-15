@@ -62,4 +62,4 @@ To run the tests:
 forge tests
 ```
 
-[image-1]:	./images/scheme.png
+[image-1]:	./images/Autonomous.png
