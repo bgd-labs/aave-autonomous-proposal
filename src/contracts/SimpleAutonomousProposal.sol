@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import {AaveGovernanceV2} from 'aave-address-book/AaveAddressBook.sol';
-import {AutonomousProposal} from './AutonomousProposal.sol';
+import {AutonomousProposal, IAutonomousProposal} from './AutonomousProposal.sol';
+import {ISimpleAutonomousProposal} from './interfaces/ISimpleAutonomousProposal.sol';
 
 /**
  * @title Simple Autonomous Proposal
@@ -19,14 +20,19 @@ contract SimpleAutonomousProposal is
   AutonomousProposal,
   ISimpleAutonomousProposal
 {
+  /// @inheritdoc ISimpleAutonomousProposal
   address public immutable PAYLOAD;
+
+  /// @inheritdoc ISimpleAutonomousProposal
   bytes32 public immutable IPFS_HASH;
+
+  /// @inheritdoc ISimpleAutonomousProposal
   address public immutable EXECUTOR;
 
   bool internal _proposalCreated;
   uint256 internal _proposalId;
 
-  ProposalParams public proposalParams;
+  ProposalParams internal _proposalParams;
 
   constructor(
     address payload,
@@ -46,7 +52,7 @@ contract SimpleAutonomousProposal is
     IPFS_HASH = ipfsHash;
     EXECUTOR = executor;
 
-    proposalParams = ProposalParams({
+    _proposalParams = ProposalParams({
       target: PAYLOAD,
       withDelegateCall: true,
       value: 0,
@@ -55,27 +61,36 @@ contract SimpleAutonomousProposal is
     });
   }
 
+  /// @inheritdoc ISimpleAutonomousProposal
+  function getProposalParams() external view returns (ProposalParams memory) {
+    return _proposalParams;
+  }
+
+  /// @inheritdoc ISimpleAutonomousProposal
   function getProposalId() external view returns (uint256) {
     return _proposalId;
   }
 
+  /// @inheritdoc ISimpleAutonomousProposal
   function isProposalCreated() external view returns (bool) {
     return _proposalCreated;
   }
 
+  /// @inheritdoc IAutonomousProposal
   function create() external override inCreationWindow {
-    require(!proposalCreated, 'PROPOSAL_ALREADY_CREATED');
+    require(!_proposalCreated, 'PROPOSAL_ALREADY_CREATED');
 
     ProposalParams[] memory proposalParamsList = new ProposalParams[](1);
-    proposalParamsList[0] = proposalParams;
+    proposalParamsList[0] = _proposalParams;
 
-    proposalId = _createProposal(EXECUTOR, IPFS_HASH, proposalParamsList);
+    _proposalId = _createProposal(EXECUTOR, IPFS_HASH, proposalParamsList);
 
-    proposalCreated = true;
+    _proposalCreated = true;
   }
 
+  /// @inheritdoc IAutonomousProposal
   function vote() external override {
-    require(proposalCreated, 'PROPOSAL_NOT_CREATED');
-    AaveGovernanceV2.GOV.submitVote(proposalId, true);
+    require(_proposalCreated, 'PROPOSAL_NOT_CREATED');
+    AaveGovernanceV2.GOV.submitVote(_proposalId, true);
   }
 }
